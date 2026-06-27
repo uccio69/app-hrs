@@ -65,6 +65,34 @@ class AnagraficaResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class AnagraficaCreateRequest(BaseModel):
+    cod_inaz: Optional[Union[str, int]] = None
+    rag_sociale: Optional[str] = None
+    cognome: Optional[str] = None
+    nome: Optional[str] = None
+    tipo: Optional[Union[str, int]] = None
+    utente: Optional[str] = None
+    reparto: Optional[str] = None
+    sospeso: Optional[bool] = False
+    telefono1: Optional[str] = None
+    cellulare1: Optional[str] = None
+    email1: Optional[str] = None
+    pec: Optional[str] = None
+
+class AnagraficaUpdateRequest(BaseModel):
+    cod_inaz: Optional[Union[str, int]] = None
+    rag_sociale: Optional[str] = None
+    cognome: Optional[str] = None
+    nome: Optional[str] = None
+    tipo: Optional[Union[str, int]] = None
+    utente: Optional[str] = None
+    reparto: Optional[str] = None
+    sospeso: Optional[bool] = None
+    telefono1: Optional[str] = None
+    cellulare1: Optional[str] = None
+    email1: Optional[str] = None
+    pec: Optional[str] = None
+
 class TabellaTipologiaResponse(BaseModel):
     codice: Union[str, int]
     descrizione: Optional[str] = None
@@ -341,6 +369,63 @@ def get_anagrafiche(
 def get_tipologia_anagrafica(current_user: str = Depends(get_current_user), db: Session = Depends(get_db)):
     return db.query(models.Tabella_Tipologia).order_by(models.Tabella_Tipologia.descrizione).all()
 
+@app.post("/api/anagrafica", response_model=AnagraficaResponse, status_code=status.HTTP_201_CREATED)
+def create_anagrafica(
+    req: AnagraficaCreateRequest,
+    current_user: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from sqlalchemy import cast, Integer
+    
+    try:
+        max_codice = db.query(func.max(cast(models.Anagrafica.codice, Integer))).scalar() or 0
+    except Exception:
+        max_codice = 0
+        
+    next_codice = str(max_codice + 1)
+    
+    new_anag = models.Anagrafica(
+        codice=next_codice,
+        **req.model_dump()
+    )
+    db.add(new_anag)
+    db.commit()
+    db.refresh(new_anag)
+    return new_anag
+
+@app.put("/api/anagrafica/{codice}", response_model=AnagraficaResponse)
+def update_anagrafica(
+    codice: str,
+    req: AnagraficaUpdateRequest,
+    current_user: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    anag = db.query(models.Anagrafica).filter(models.Anagrafica.codice == codice).first()
+    if not anag:
+        raise HTTPException(status_code=404, detail="Anagrafica non trovata")
+    
+    update_data = req.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(anag, field, value)
+        
+    db.commit()
+    db.refresh(anag)
+    return anag
+
+@app.delete("/api/anagrafica/{codice}")
+def delete_anagrafica(
+    codice: str,
+    current_user: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    anag = db.query(models.Anagrafica).filter(models.Anagrafica.codice == codice).first()
+    if not anag:
+        raise HTTPException(status_code=404, detail="Anagrafica non trovata")
+    
+    db.delete(anag)
+    db.commit()
+    return {"message": "Anagrafica eliminata con successo"}
+
 
 # =============================================================================
 # UTENTI CRUD ENDPOINTS
@@ -477,3 +562,42 @@ def delete_utente(
     db.delete(user)
     db.commit()
     return {"message": f"Utente {utente_id} eliminato con successo"}
+
+# =============================================================================
+# NEWS RSS ENDPOINT
+# =============================================================================
+import sys
+import os
+import time
+
+# Aggiungi cartella execution al sys.path
+execution_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'execution'))
+if execution_path not in sys.path:
+    sys.path.append(execution_path)
+
+try:
+    from fetch_work_news import fetch_work_news
+except ImportError:
+    fetch_work_news = None
+
+# Cache in memory
+_news_cache = {"data": [], "timestamp": 0}
+CACHE_TTL = 12 * 3600  # 12 hours in seconds
+
+@app.get("/api/news/lavoro")
+def get_lavoro_news():
+    global _news_cache
+    current_time = time.time()
+    
+    if _news_cache["data"] and (current_time - _news_cache["timestamp"] < CACHE_TTL):
+        return _news_cache["data"]
+        
+    if fetch_work_news:
+        news = fetch_work_news(limit=6)
+        if news:
+            _news_cache["data"] = news
+            _news_cache["timestamp"] = current_time
+        return news
+    else:
+        return []
+

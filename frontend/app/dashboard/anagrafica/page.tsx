@@ -29,6 +29,8 @@ interface Utente {
   cognome: string | null;
 }
 
+import AnagraficaModal from "./AnagraficaModal";
+
 export default function AnagraficaPage() {
   const [data, setData] = useState<Anagrafica[]>([]);
   const [tipologie, setTipologie] = useState<TabellaTipologia[]>([]);
@@ -43,6 +45,10 @@ export default function AnagraficaPage() {
   const [aziendeAttive, setAziendeAttive] = useState(true);
 
   const [loading, setLoading] = useState(false);
+  
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAnagrafica, setEditingAnagrafica] = useState<Anagrafica | null>(null);
 
   // Fetch tipologie per la combobox
   const fetchTipologie = async () => {
@@ -104,13 +110,74 @@ export default function AnagraficaPage() {
   useEffect(() => {
     fetchTipologie();
     fetchUtenti();
-    // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-    fetchAnagrafica();
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchAnagrafica();
+  };
+
+  const openNewModal = () => {
+    setEditingAnagrafica(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (item: Anagrafica) => {
+    setEditingAnagrafica(item);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveAnagrafica = async (formData: Partial<Anagrafica>, codice?: string | null) => {
+    const token = localStorage.getItem("token");
+    const method = codice ? "PUT" : "POST";
+    const url = codice 
+      ? `http://localhost:8000/api/anagrafica/${codice}` 
+      : `http://localhost:8000/api/anagrafica`;
+
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(formData)
+    });
+
+    if (!res.ok) {
+      throw new Error("Errore durante il salvataggio");
+    }
+
+    // Ricarica la lista dopo il salvataggio
+    fetchAnagrafica();
+  };
+
+  const handleDeleteAnagrafica = async (item: Anagrafica) => {
+    const ragSociale = item.rag_sociale || "Sconosciuta";
+    const firstConfirm = window.confirm(`Sei sicuro di voler eliminare l'anagrafica "${ragSociale}"?`);
+    if (!firstConfirm) return;
+
+    const secondConfirm = window.confirm(`ATTENZIONE: L'eliminazione dell'anagrafica "${ragSociale}" è irreversibile. Confermi di nuovo l'eliminazione?`);
+    if (!secondConfirm) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:8000/api/anagrafica/${item.codice}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error("Errore durante l'eliminazione");
+      }
+
+      // Ricarica la lista dopo l'eliminazione
+      fetchAnagrafica();
+    } catch (err) {
+      console.error(err);
+      alert("Si è verificato un errore durante l'eliminazione.");
+    }
   };
 
   const exportToCSV = () => {
@@ -178,6 +245,15 @@ export default function AnagraficaPage() {
           <p className="text-text-muted mt-1">Gestione e consultazione anagrafiche dipendenti e aziende.</p>
         </div>
         <div className="flex gap-2 print:hidden">
+          <button
+            onClick={openNewModal}
+            className="rounded bg-primary px-4 py-2 font-semibold text-white hover:bg-primary-hover transition-colors flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Nuova Anagrafica
+          </button>
           <button
             onClick={handlePrint}
             className="rounded border border-border-divider bg-bg-base px-4 py-2 font-semibold text-text-main hover:bg-surface transition-colors"
@@ -291,18 +367,19 @@ export default function AnagraficaPage() {
                 <th className="px-6 py-4 whitespace-nowrap">Email</th>
                 <th className="px-6 py-4 whitespace-nowrap">PEC</th>
                 <th className="px-6 py-4 whitespace-nowrap">Tipo Anagrafica</th>
+                <th className="px-6 py-4 whitespace-nowrap text-right">Azioni</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={11} className="px-6 py-8 text-center text-text-muted">
+                  <td colSpan={12} className="px-6 py-8 text-center text-text-muted">
                     Caricamento in corso...
                   </td>
                 </tr>
               ) : data.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="px-6 py-8 text-center text-text-muted">
+                  <td colSpan={12} className="px-6 py-8 text-center text-text-muted">
                     Nessuna anagrafica trovata.
                   </td>
                 </tr>
@@ -326,6 +403,26 @@ export default function AnagraficaPage() {
                           {tipoItem?.descrizione || "Sconosciuto"}
                         </span>
                       </td>
+                      <td className="px-6 py-3 text-right">
+                        <button
+                          onClick={() => openEditModal(item)}
+                          className="text-text-muted hover:text-primary transition-colors p-1"
+                          title="Modifica Anagrafica"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAnagrafica(item)}
+                          className="text-text-muted hover:text-red-600 transition-colors p-1 ml-2"
+                          title="Elimina Anagrafica"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
@@ -334,6 +431,15 @@ export default function AnagraficaPage() {
           </table>
         </div>
       </div>
+
+      <AnagraficaModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        anagrafica={editingAnagrafica}
+        tipologie={tipologie}
+        utenti={utenti}
+        onSave={handleSaveAnagrafica}
+      />
     </div>
   );
 }
