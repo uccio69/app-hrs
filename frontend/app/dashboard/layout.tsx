@@ -100,9 +100,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Auto-expand Utilità submenu if we're on a child page
   useEffect(() => {
     if (pathname?.startsWith("/dashboard/utenti") ||
-        pathname?.startsWith("/dashboard/attivita") ||
-        pathname?.startsWith("/dashboard/costi") ||
-        pathname?.startsWith("/dashboard/workflow")) {
+      pathname?.startsWith("/dashboard/attivita") ||
+      pathname?.startsWith("/dashboard/costi") ||
+      pathname?.startsWith("/dashboard/workflow")) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setUtilitaOpen(true);
     }
@@ -157,11 +157,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <li>
               <a
                 href="/dashboard"
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive("/dashboard")
-                    ? "bg-primary/10 text-primary"
-                    : "text-text-main hover:bg-surface hover:text-primary"
-                }`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive("/dashboard")
+                  ? "bg-primary/10 text-primary"
+                  : "text-text-main hover:bg-surface hover:text-primary"
+                  }`}
               >
                 <IconHome />
                 Dashboard Principale
@@ -172,11 +171,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <li>
               <a
                 href="/dashboard/anagrafica"
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive("/dashboard/anagrafica")
-                    ? "bg-primary/10 text-primary"
-                    : "text-text-main hover:bg-surface hover:text-primary"
-                }`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive("/dashboard/anagrafica")
+                  ? "bg-primary/10 text-primary"
+                  : "text-text-main hover:bg-surface hover:text-primary"
+                  }`}
               >
                 <IconAnagrafica />
                 Anagrafica
@@ -187,11 +185,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <li>
               <button
                 onClick={() => setUtilitaOpen(!utilitaOpen)}
-                className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  utilitaOpen
-                    ? "bg-primary/5 text-primary"
-                    : "text-text-main hover:bg-surface hover:text-primary"
-                }`}
+                className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${utilitaOpen
+                  ? "bg-primary/5 text-primary"
+                  : "text-text-main hover:bg-surface hover:text-primary"
+                  }`}
               >
                 <span className="flex items-center gap-3">
                   <IconUtilita />
@@ -202,9 +199,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               {/* Submenu */}
               <div
-                className={`overflow-hidden transition-all duration-200 ease-in-out ${
-                  utilitaOpen ? "max-h-60 opacity-100 mt-1" : "max-h-0 opacity-0"
-                }`}
+                className={`overflow-hidden transition-all duration-200 ease-in-out ${utilitaOpen ? "max-h-60 opacity-100 mt-1" : "max-h-0 opacity-0"
+                  }`}
               >
                 <ul className="ml-4 pl-4 border-l-2 border-border-divider space-y-0.5">
                   {submenuItems.map((item) => (
@@ -212,11 +208,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       {item.enabled ? (
                         <a
                           href={item.href}
-                          className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
-                            isActive(item.href)
-                              ? "bg-primary/10 text-primary font-semibold"
-                              : "text-text-main hover:bg-surface hover:text-primary"
-                          }`}
+                          className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${isActive(item.href)
+                            ? "bg-primary/10 text-primary font-semibold"
+                            : "text-text-main hover:bg-surface hover:text-primary"
+                            }`}
                         >
                           {item.icon}
                           {item.label}

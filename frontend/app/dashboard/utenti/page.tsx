@@ -366,7 +366,7 @@ export default function UtentiPage() {
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="space-y-6">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div>

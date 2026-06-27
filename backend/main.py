@@ -56,6 +56,11 @@ class AnagraficaResponse(BaseModel):
     tipo: Optional[Union[str, int]] = None
     utente: Optional[str] = None
     reparto: Optional[str] = None
+    sospeso: Optional[bool] = None
+    telefono1: Optional[str] = None
+    cellulare1: Optional[str] = None
+    email1: Optional[str] = None
+    pec: Optional[str] = None
 
     class Config:
         from_attributes = True

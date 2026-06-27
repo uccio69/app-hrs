@@ -38,3 +38,7 @@ class Anagrafica(Base):
     utente = Column(String(50), name="utente")
     reparto = Column(String(255), name="Reparto")
     sospeso = Column(Boolean, name="Sospeso")
+    telefono1 = Column(String(50), name="Telefono1")
+    cellulare1 = Column(String(50), name="Cellulare1")
+    email1 = Column(String(255), name="Email1")
+    pec = Column(String(255), name="PEC")
