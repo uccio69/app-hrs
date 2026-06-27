@@ -35,3 +35,6 @@ class Anagrafica(Base):
     cognome = Column(String(100), name="Cognome")
     nome = Column(String(100), name="Nome")
     tipo = Column(String(50), name="Tipo")
+    utente = Column(String(50), name="utente")
+    reparto = Column(String(255), name="Reparto")
+    sospeso = Column(Boolean, name="Sospeso")

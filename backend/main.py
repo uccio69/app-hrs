@@ -54,6 +54,8 @@ class AnagraficaResponse(BaseModel):
     cognome: Optional[str] = None
     nome: Optional[str] = None
     tipo: Optional[Union[str, int]] = None
+    utente: Optional[str] = None
+    reparto: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -295,11 +297,13 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
 from sqlalchemy import or_
 
 @app.get("/api/anagrafica", response_model=List[AnagraficaResponse])
-def get_anagrafica(
+def get_anagrafiche(
     codice_paghe: Optional[str] = None, 
     codice_univoco: Optional[str] = None, 
     nominativo: Optional[str] = None,
     tipo: Optional[str] = None,
+    utente: Optional[str] = None,
+    aziende_attive: Optional[bool] = None,
     current_user: str = Depends(get_current_user), 
     db: Session = Depends(get_db)
 ):
@@ -311,6 +315,10 @@ def get_anagrafica(
         query = query.filter(models.Anagrafica.codice.contains(codice_univoco))
     if tipo:
         query = query.filter(models.Anagrafica.tipo == tipo)
+    if utente:
+        query = query.filter(models.Anagrafica.utente == utente)
+    if aziende_attive:
+        query = query.filter(models.Anagrafica.sospeso == False)
     if nominativo:
         terms = nominativo.strip().split()
         for term in terms:
