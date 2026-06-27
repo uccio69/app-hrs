@@ -9,7 +9,7 @@ passlib[bcrypt]
 python-multipart
 cors
 pycryptodome
-
+python-dateutil
+python-dotenv
 msal
-
 requests

@@ -11,7 +11,7 @@ Questo documento contiene le direttive visive e strutturali da utilizzare per la
 Antigravity dovrà utilizzare i seguenti asset per l'header, il footer e le favicon.
 
 - **Logo Principale (Header/Light Background)**: 
-  - URL di riferimento (dal sito): `https://www.hrsupport.it/wp-content/uploads/2019/01/logo-hr-support.png` *(sostituire con path relativo se in locale, es. `/assets/logo-main.svg`)*
+  - URL di riferimento (dal sito): `/assets/logo.png` *(sostituire con path relativo se in locale, es. `/assets/logo-main.svg`)*
 - **Logo Alternativo (Footer/Dark Background)**: Utilizzare una versione in negativo (bianca) del logo principale.
 - **Favicon**: Estrapolare il pittogramma dal logo principale.
 

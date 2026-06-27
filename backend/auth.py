@@ -36,6 +36,19 @@ def decrypt_password(encrypted_text: str, secret_key: str = "09075472") -> str:
     decrypted_bytes = unpad(cipher.decrypt(encrypted_bytes), DES3.block_size)
     return decrypted_bytes.decode('utf-16le')
 
+def encrypt_password(plain_text: str, secret_key: str = "09075472") -> str:
+    """Encrypt a plain-text password with TripleDES-CBC and return Base64 string.
+    Mirror of decrypt_password for creating new users compatible with the legacy system."""
+    if not plain_text:
+        return ""
+    from Crypto.Util.Padding import pad
+    key = _truncate_hash(secret_key, 24)   # TripleDES 192-bit key
+    iv  = _truncate_hash("", 8)            # 64-bit IV
+    plain_bytes = plain_text.encode('utf-16le')
+    cipher = DES3.new(key, DES3.MODE_CBC, iv)
+    encrypted_bytes = cipher.encrypt(pad(plain_bytes, DES3.block_size))
+    return base64.b64encode(encrypted_bytes).decode('ascii')
+
 def verify_password(plain_password: str, stored_password: str) -> bool:
     """
     Compare login password against the stored value.
