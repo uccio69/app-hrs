@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface TabellaTipologia {
   codice: string;
@@ -32,6 +33,7 @@ interface Utente {
 import AnagraficaModal from "./AnagraficaModal";
 
 export default function AnagraficaPage() {
+  const router = useRouter();
   const [data, setData] = useState<Anagrafica[]>([]);
   const [tipologie, setTipologie] = useState<TabellaTipologia[]>([]);
 
@@ -118,13 +120,11 @@ export default function AnagraficaPage() {
   };
 
   const openNewModal = () => {
-    setEditingAnagrafica(null);
-    setIsModalOpen(true);
+    router.push("/dashboard/anagrafica/nuova");
   };
 
   const openEditModal = (item: Anagrafica) => {
-    setEditingAnagrafica(item);
-    setIsModalOpen(true);
+    router.push(`/dashboard/anagrafica/modifica/${item.codice}`);
   };
 
   const handleSaveAnagrafica = async (formData: Partial<Anagrafica>, codice?: string | null) => {
