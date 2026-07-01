@@ -841,7 +841,10 @@ def get_tabella_settori(current_user: str = Depends(get_current_user), db: Sessi
 @app.get("/api/tabella-ccnl", response_model=List[TabellaCCNLResponse])
 def get_tabella_ccnl(db: Session = Depends(get_db)):
     """Restituisce l'elenco dei CCNL per popolare il dropdown."""
-    return db.query(models.TabellaCCNL).filter(models.TabellaCCNL.descrizione.isnot(None)).order_by(models.TabellaCCNL.descrizione).all()
+    return db.query(models.TabellaCCNL).filter(
+        models.TabellaCCNL.descrizione.isnot(None),
+        models.TabellaCCNL.abilitazione == True
+    ).order_by(func.length(models.TabellaCCNL.codice), models.TabellaCCNL.codice).all()
 
 # --- Inserimento completo Anagrafica (dalla nuova maschera full-page) ---
 @app.post("/api/anagrafica/full", response_model=AnagraficaFullResponse, status_code=status.HTTP_201_CREATED)

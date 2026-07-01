@@ -39,6 +39,7 @@ class TabellaCCNL(Base):
     codice = Column(String(50), name="Codice", nullable=True)
     descrizione = Column(String(255), name="Descrizione")
     settore = Column(String(255), name="Settore")
+    abilitazione = Column(Boolean, name="Abilitazione")
 
 
 # =============================================================================
