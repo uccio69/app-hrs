@@ -844,7 +844,7 @@ def get_tabella_ccnl(db: Session = Depends(get_db)):
     return db.query(models.TabellaCCNL).filter(
         models.TabellaCCNL.descrizione.isnot(None),
         models.TabellaCCNL.abilitazione == True
-    ).order_by(func.length(models.TabellaCCNL.codice), models.TabellaCCNL.codice).all()
+    ).order_by(models.TabellaCCNL.settore, models.TabellaCCNL.descrizione).all()
 
 # --- Inserimento completo Anagrafica (dalla nuova maschera full-page) ---
 @app.post("/api/anagrafica/full", response_model=AnagraficaFullResponse, status_code=status.HTTP_201_CREATED)
@@ -890,8 +890,6 @@ def create_anagrafica_full(
     for m in matricole_data:
         new_m = models.AnagraficaMatricoleINPS(
             id_anagrafica=next_codice,
-            matricola=m.get("matricola", ""),
-            sede=m.get("sede", ""),
             descrizione=m.get("descrizione", ""),
         )
         db.add(new_m)
@@ -900,7 +898,6 @@ def create_anagrafica_full(
     for p in pat_data:
         new_p = models.AnagraficaPATINAIL(
             id_anagrafica=next_codice,
-            pat=p.get("pat", ""),
             descrizione=p.get("descrizione", ""),
         )
         db.add(new_p)
@@ -912,8 +909,6 @@ def create_anagrafica_full(
             numero=l.get("numero", ""),
             data=l.get("data"),
             scadenza=l.get("scadenza"),
-            importo=l.get("importo", 0),
-            descrizione=l.get("descrizione", ""),
         )
         db.add(new_l)
 
@@ -982,15 +977,12 @@ def update_anagrafica_full(
     for m in matricole_data:
         db.add(models.AnagraficaMatricoleINPS(
             id_anagrafica=codice,
-            matricola=m.get("matricola", ""),
-            sede=m.get("sede", ""),
             descrizione=m.get("descrizione", "")
         ))
 
     for p in pat_data:
         db.add(models.AnagraficaPATINAIL(
             id_anagrafica=codice,
-            pat=p.get("pat", ""),
             descrizione=p.get("descrizione", "")
         ))
 
@@ -999,9 +991,7 @@ def update_anagrafica_full(
             id_anagrafica=codice,
             numero=l.get("numero", ""),
             data=l.get("data"),
-            scadenza=l.get("scadenza"),
-            importo=l.get("importo", 0),
-            descrizione=l.get("descrizione", "")
+            scadenza=l.get("scadenza")
         ))
 
     db.commit()

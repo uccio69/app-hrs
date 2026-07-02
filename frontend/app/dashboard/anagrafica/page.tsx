@@ -124,7 +124,9 @@ export default function AnagraficaPage() {
   };
 
   const openEditModal = (item: Anagrafica) => {
-    router.push(`/dashboard/anagrafica/modifica/${item.codice}`);
+    if (item.codice) {
+      router.push(`/dashboard/anagrafica/modifica/${encodeURIComponent(item.codice)}`);
+    }
   };
 
   const handleSaveAnagrafica = async (formData: Partial<Anagrafica>, codice?: string | null) => {

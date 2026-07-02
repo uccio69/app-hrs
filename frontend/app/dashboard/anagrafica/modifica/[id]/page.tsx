@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useState, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
 
 // =============================================================================
 // TYPES
@@ -154,10 +154,10 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 // MAIN PAGE COMPONENT
 // =============================================================================
 
-export default function ModificaAnagraficaPage() {
+export default function ModificaAnagraficaPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const params = useParams();
-  const id = params.id as string;
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
   const [activeTab, setActiveTab] = useState("generali");
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -269,7 +269,8 @@ export default function ModificaAnagraficaPage() {
     fetch("http://localhost:8000/api/utenti?abilitazione=true", { headers }).then(async r => { if (r.ok) setUtenti(await r.json()); }).catch(console.error);
 
     if (id) {
-      fetch(`http://localhost:8000/api/anagrafica/full/${id}`, { headers })
+      const fetchId = encodeURIComponent(id);
+      fetch(`http://localhost:8000/api/anagrafica/full/${fetchId}`, { headers })
         .then(async r => {
           if (r.ok) {
             const data = await r.json();
@@ -354,7 +355,8 @@ export default function ModificaAnagraficaPage() {
         scadenza: l.scadenza || null,
       }));
 
-      const res = await fetch(`http://localhost:8000/api/anagrafica/full/${id}`, {
+      const fetchId = encodeURIComponent(id);
+      const res = await fetch(`http://localhost:8000/api/anagrafica/full/${fetchId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -420,7 +422,7 @@ export default function ModificaAnagraficaPage() {
           <option value="000">Seleziona...</option>
           {Array.isArray(ccnlList) && ccnlList.map(c => (
             <option key={`ccnl-${c.id}`} value={c.codice?.trim() || ""}>
-              {c.descrizione}
+              {c.settore ? `(${c.settore.trim()}) - ${c.descrizione?.trim() || ""}` : c.descrizione?.trim() || ""}
             </option>
           ))}
         </SelectField>

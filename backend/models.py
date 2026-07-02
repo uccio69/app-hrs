@@ -310,4 +310,6 @@ class AnagraficaLetteraIntento(Base):
 
     id = Column(Integer, primary_key=True, name="ID", autoincrement=True)
     id_anagrafica = Column(Integer, name="ID_Anagrafica")
-    descrizione = Column(String(255), name="Descrizione")
+    numero = Column(String(50), name="Numero")
+    data = Column(DateTime, name="Data")
+    scadenza = Column(DateTime, name="Scadenza")

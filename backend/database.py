@@ -5,7 +5,7 @@ import os
 # "HREDP" on server "192.168.1.156" with user "SA" and password "mt1524lg*"
 DB_USER = os.getenv("DB_USER", "SA")
 DB_PASS = os.getenv("DB_PASS", "mt1524lg*")
-DB_SERVER = os.getenv("DB_SERVER", "192.168.1.108")
+DB_SERVER = os.getenv("DB_SERVER", "SIRIO1")
 DB_NAME = os.getenv("DB_NAME", "HREDP")
 
 # Requires ODBC Driver 17 for SQL Server

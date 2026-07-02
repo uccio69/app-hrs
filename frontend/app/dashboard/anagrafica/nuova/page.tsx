@@ -387,7 +387,7 @@ export default function NuovaAnagraficaPage() {
           <option value="000">Seleziona...</option>
           {Array.isArray(ccnlList) && ccnlList.map(c => (
             <option key={`ccnl-${c.id}`} value={c.descrizione?.trim() || c.settore?.trim() || ""}>
-              {c.descrizione || c.settore || ""}
+              {c.settore ? `(${c.settore.trim()}) - ${c.descrizione?.trim() || ""}` : c.descrizione?.trim() || ""}
             </option>
           ))}
         </SelectField>
